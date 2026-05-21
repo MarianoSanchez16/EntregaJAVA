@@ -1,49 +1,38 @@
 package com.techlab.articulo.model;
 
-/**
- * CONSIGNA DE ESTA CLASE
- * ------------------------------------------------------------
- * Esta clase debe heredar de Articulo.
- *
- * Representa un artículo alimenticio.
- *
- * ATRIBUTO ESPECÍFICO
- * ------------------------------------------------------------
- * - diasParaVencimiento : int
- *
- * ESTA CLASE DEBE
- * ------------------------------------------------------------
- * - tener constructor
- * - tener getters y setters
- * - sobrescribir getTipoArticulo()
- * - sobrescribir calcularPrecioFinal()
- *
- * IDEA DIDÁCTICA PARA calcularPrecioFinal()
- * ------------------------------------------------------------
- * Podés definir una regla propia, por ejemplo:
- * - si faltan pocos días para vencer, aplicar descuento
- * - si no, mantener el precio
- */
-public class ArticuloAlimenticio extends Articulo {
+import com.techlab.articulo.utils.Validaciones;
 
+public class ArticuloAlimenticio extends Articulo {
     private int diasParaVencimiento;
 
-    // TODO:
-    // Crear constructor.
+    public ArticuloAlimenticio(){ super(); }
 
-    // TODO:
-    // Crear getters y setters.
+    public ArticuloAlimenticio(int codigo, String nombre, double precio, Categoria categoria, int diasParaVencimiento){
+        super(codigo, nombre, precio, categoria);
+        setDiasParaVencimiento(diasParaVencimiento);
+    }
 
-    @Override
-    public String getTipoArticulo() {
-        // TODO:
-        return "";
+    public int getDiasParaVencimiento(){
+        return diasParaVencimiento;
+    }
+
+    public void setDiasParaVencimiento(int dias){
+        if(Validaciones.validarNoNegativo(dias)){
+            this.diasParaVencimiento = dias;
+        }
     }
 
     @Override
-    public double calcularPrecioFinal() {
-        // TODO:
-        // Implementar lógica propia del artículo alimenticio.
-        return 0;
+    public double calcularPrecioFinal(){
+        // Regla de Las Tinas: Si vence en menos de 3 días, tiene descuento del 30%
+        if (diasParaVencimiento <=3){
+            return getPrecio() * 0.7;
+        }
+        return getPrecio();
+    }
+
+    @Override
+    public String toString(){
+        return super.toString() + " | Vence en: " + diasParaVencimiento + " dias | Precio Final: $" + calcularPrecioFinal();
     }
 }

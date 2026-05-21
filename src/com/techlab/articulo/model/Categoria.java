@@ -1,52 +1,48 @@
 package com.techlab.articulo.model;
 
 import com.techlab.articulo.interfaces.Identificable;
+import com.techlab.articulo.utils.Validaciones;
 
-/**
- * CONSIGNA DE ESTA CLASE
- * ------------------------------------------------------------
- * Esta clase representa una categoría del sistema.
- *
- * Se utilizará como atributo dentro de Articulo.
- *
- * ATRIBUTOS OBLIGATORIOS
- * ------------------------------------------------------------
- * - codigo : int
- * - nombre : String
- * - descripcion : String
- *
- * ESTA CLASE DEBE
- * ------------------------------------------------------------
- * - implementar Identificable
- * - tener constructor
- * - tener getters y setters
- * - tener toString()
- *
- * IMPORTANTE
- * ------------------------------------------------------------
- * Luego esta clase tendrá su propio CRUD desde MenuCategorias.
- */
 public class Categoria implements Identificable {
-
     private int codigo;
     private String nombre;
     private String descripcion;
 
-    // TODO:
-    // Crear constructor.
+    public Categoria() {}
+
+    public Categoria(int codigo, String nombre, String descripcion){
+        this.codigo = codigo;
+        setNombre(nombre);
+        setDescripcion(descripcion);
+    }
 
     @Override
     public int getCodigo() {
-        // TODO:
-        return 0;
+        return codigo;
     }
 
-    // TODO:
-    // Crear getters y setters restantes.
+    public String getNombre(){
+        return nombre;
+    }
+
+    public void setNombre(String nombre){
+        if(Validaciones.validarTextoNoVacio(nombre)){
+            this.nombre = nombre.trim();
+        }
+    }
+
+    public String getDescripcion(){
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion){
+        if(Validaciones.validarTextoNoVacio(descripcion)){
+            this.descripcion = descripcion.trim();
+        }
+    }
 
     @Override
     public String toString() {
-        // TODO:
-        return "";
+        return "Cat [" + codigo + "] " + nombre + " (" + descripcion + ")";
     }
 }
