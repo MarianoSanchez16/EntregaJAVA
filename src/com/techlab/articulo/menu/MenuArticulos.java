@@ -1,85 +1,109 @@
 package com.techlab.articulo.menu;
 
-/**
- * CONSIGNA DE ESTA CLASE
- * ------------------------------------------------------------
- * Esta clase debe heredar de Menu y encargarse del CRUD de artículos.
- *
- * Debe trabajar con:
- * - Repositorio<Articulo>
- * - Repositorio<Categoria>
- *
- * ¿Por qué necesita también categorías?
- * Porque un artículo debe asociarse a una categoría ya existente.
- *
- * FUNCIONALIDADES ESPERADAS
- * ------------------------------------------------------------
- * 1) Ingresar artículo
- * 2) Listar artículos
- * 3) Consultar un artículo por código
- * 4) Modificar un artículo
- * 5) Eliminar un artículo
- * 0) Volver
- *
- * REQUISITOS IMPORTANTES
- * ------------------------------------------------------------
- * - Antes de crear un artículo, debe verificarse que existan categorías.
- * - Debe preguntarse qué tipo de artículo se quiere crear:
- *   - electrónico
- *   - alimenticio
- * - Debe pedirse:
- *   - nombre
- *   - precio
- *   - categoría por código
- * - Si es electrónico:
- *   - garantía en meses
- * - Si es alimenticio:
- *   - días para vencimiento
- *
- * VALIDACIONES
- * ------------------------------------------------------------
- * - nombre no vacío
- * - precio no negativo
- * - categoría existente
- * - garantía no negativa
- * - días para vencimiento no negativos
- *
- * SUGERENCIA DE MÉTODOS
- * ------------------------------------------------------------
- * - ingresarArticulo()
- * - listarArticulos()
- * - consultarArticulo()
- * - modificarArticulo()
- * - eliminarArticulo()
- * - pedirCategoriaExistente()
- * - pedirNombreArticulo()
- * - pedirPrecioArticulo()
- * - pedirGarantia()
- * - pedirDiasParaVencimiento()
- */
-public class MenuArticulos extends Menu {
+import com.techlab.articulo.model.Articulo;
+import com.techlab.articulo.model.ArticuloAlimenticio;
+import com.techlab.articulo.model.ArticuloElectronico;
+import com.techlab.articulo.model.Categoria;
+import com.techlab.articulo.repository.Repositorio;
+import com.techlab.articulo.utils.Secuencias;
+import java.util.Scanner;
 
-    public MenuArticulos(java.util.Scanner scanner) {
-        super(scanner);
+public class MenuArticulos extends Menu {
+    private Repositorio<Articulo> repoArticulos;
+    private Repositorio<Categoria> repoCategorias;
+
+    public MenuArticulos(Scanner sc, Repositorio<Articulo> repoArticulos, Repositorio<Categoria> repoCategorias) {
+        super(sc);
+        this.repoArticulos = repoArticulos;
+        this.repoCategorias = repoCategorias;
     }
 
     @Override
     public void mostrarMenu() {
-        System.out.println("\n--- MENÚ ARTÍCULOS ---");
+        System.out.println("\n--- MENÚ ARTÍCULOS (Las Tinas) ---");
         System.out.println("1 - Ingresar artículo");
         System.out.println("2 - Listar artículos");
-        System.out.println("3 - Consultar artículo");
-        System.out.println("4 - Modificar artículo");
-        System.out.println("5 - Eliminar artículo");
         System.out.println("0 - Volver");
     }
 
     @Override
     public void ejecutar() {
-        // TODO:
-        // Implementar el loop del menú y llamar a los métodos correspondientes.
+        int opcion;
+        do {
+            mostrarMenu();
+            opcion = leerEntero("Elija una opción: ");
+
+            switch (opcion) {
+                case 1:
+                    ingresarArticulo();
+                    break;
+                case 2:
+                    listarArticulos();
+                    break;
+                case 0:
+                    System.out.println("Volviendo al menú principal...");
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
+            }
+        } while (opcion != 0);
     }
 
-    // TODO:
-    // Implementar todos los métodos del CRUD de artículos.
+    private void ingresarArticulo(){
+        System.out.println("\n-- Ingresar nuevo artículo --");
+        if (repoCategorias.cantidad() == 0) {
+            System.out.println("Error: Debe registrar al menos una Categoría antes de crear un artículo.");
+            return;
+        }
+
+        int tipo = leerEntero("Seleccione tipo (1-Alimenticio, 2-Electrónico): ");
+        if (tipo != 1 && tipo != 2) {
+            System.out.println("Tipo inválido.");
+            return;
+        }
+
+        String nombre = leerTextoNoVacio("Nombre del producto: ");
+        double precio = leerDoubleNoNegativo("Precio base: $");
+
+        System.out.println("Categorías disponibles:");
+        for (Categoria c : repoCategorias.listar()){
+            System.out.println(c.toString());
+        }
+        int idCat = leerEntero("Ingrese ID de la Categoría: ");
+        Categoria categoriaAsignada = repoCategorias.buscarPorCodigo(idCat);
+
+        if (categoriaAsignada == null){
+            System.out.println("Categoría no encontrada. Operación cancelada.");
+            return;
+        }
+
+        int codigo = Secuencias.generarCodigoArticulo();
+        Articulo nuevoArticulo = null;
+
+        if (tipo == 1){
+            int dias = leerEntero("Dias para el vencimiento: ");
+            nuevoArticulo = new ArticuloAlimenticio(codigo, nombre, precio, categoriaAsignada, dias);
+        } else{
+            int meses = leerEntero("Garantía en meses: ");
+            nuevoArticulo = new ArticuloElectronico(codigo, nombre, precio, categoriaAsignada, meses);
+        }
+
+        if (repoArticulos.agregar(nuevoArticulo)) {
+            System.out.println("Artículo registrado con éxito.");
+        } else{
+            System.out.println("Error al registrar el artículo");
+        }
+    }
+
+    private void listarArticulos(){
+        System.out.println("\n-- Catálogo de Artículos --");
+        if (repoArticulos.cantidad() == 0) {
+            System.out.println("No hay artículos en el sistema.");
+            return;
+        }
+
+        for (Articulo a : repoArticulos.listar()){
+            System.out.println(a.toString());
+        }
+    }
 }
